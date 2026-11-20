@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="securechat-token" content="{{TOKEN}}">
+  <title>SecureChat</title>
+  <link rel="icon" href="/static/shield.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/theme.js"></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+
+<!-- ============================================================ AUTH (login + register) -->
+<section id="auth-view" class="view">
+  <header class="auth-top">
+    <span class="brand-small">SecureChat</span>
+    <div class="auth-top-right">
+      <span class="tagline">NULLPOINT / ENCRYPTED MESSAGING</span>
+      <button type="button" class="theme-toggle" aria-label="Switch to dark mode">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    </div>
+  </header>
+
+  <div class="auth-body">
+    <div class="auth-left">
+      <div class="auth-form">
+        <div class="logo-row">
+          <img src="/static/shield.svg" alt="" class="logo-shield">
+          <div>
+            <div class="logo-name">SecureChat</div>
+            <div class="logo-sub">End-to-End Encrypted Messaging</div>
+          </div>
+        </div>
+
+        <h1 id="auth-title">Welcome back</h1>
+        <p id="auth-subtitle" class="muted">Sign in to your secure account</p>
+
+        <form id="auth-form" novalidate>
+          <label for="username">Username</label>
+          <input id="username" class="field" autocomplete="username" maxlength="20" spellcheck="false">
+
+          <label for="password">Password</label>
+          <input id="password" class="field" type="password" autocomplete="current-password" maxlength="72">
+
+          <div id="confirm-group" hidden>
+            <label for="confirm">Confirm password</label>
+            <input id="confirm" class="field" type="password" autocomplete="new-password" maxlength="72">
+          </div>
+
+          <div class="show-row">
+            <label class="check"><input type="checkbox" id="show-pw"> Show password</label>
+          </div>
+
+          <p id="policy-hint" class="hint" hidden>
+            Username: 3–20 letters, digits or _. Password: 8+ characters with 3 of
+            lowercase, uppercase, digits, symbols.
+          </p>
+
+          <div class="connection">
+            <div class="conn-row">
+              <span class="conn-label">Connection</span>
+              <input id="server-host" class="conn-input" aria-label="Server address" spellcheck="false">
+              <input id="server-port" class="conn-input port" aria-label="Server port" inputmode="numeric">
+            </div>
+            <div class="mode-row" role="radiogroup" aria-label="Connection mode">
+              <label class="mode secure"><input type="radio" name="mode" value="secure" checked> Secure mode</label>
+              <label class="mode plain"><input type="radio" name="mode" value="plain"> Plain demo (unencrypted)</label>
+            </div>
+            <div id="mode-note" class="secure-note">End-to-end encrypted, server key pinned.</div>
+          </div>
+
+          <button type="submit" id="auth-submit" class="btn btn-gradient btn-big">Sign In</button>
+          <button type="button" id="auth-switch" class="btn btn-soft">Don't have an account? Create account</button>
+          <p id="auth-status" class="status" role="alert"></p>
+        </form>
+      </div>
+
+      <footer class="auth-foot">
+        <strong>Your conversations are private and secure.</strong>
+        <span>AES-256-GCM + RSA-2048 protect every message end to end.</span>
+      </footer>
+    </div>
+
+    <div class="auth-art" aria-hidden="true">
+      <div class="swoosh"></div>
+      <div class="orbit"></div>
+      <div class="art-card">
+        <div class="lock">
+          <div class="shackle"></div>
+          <div class="lock-body"><div class="keyhole"></div></div>
+        </div>
+      </div>
+      <div class="art-bubble"><i></i><i></i><i></i></div>
+      <div class="art-text">
+        <h2>Privacy starts here.</h2>
+        <p>Your keys. Your messages. Your control.</p>
+      </div>
+      <div class="art-stats">
+        <div><b>AES-256</b><span>Encryption</span></div>
+        <div><b>RSA-2048</b><span>Key exchange</span></div>
+        <div><b>SHA-256</b><span>Signatures</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CHAT -->
+<section id="chat-view" class="view" hidden>
+  <header class="chat-top">
+    <span class="brand">SecureChat</span>
+    <span id="me-name" class="me-name"></span>
+    <nav class="top-actions">
+      <button type="button" class="theme-toggle" aria-label="Switch to dark mode">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+      <button class="btn btn-ghost" id="btn-log">Security log</button>
+      <button class="btn btn-ghost" id="btn-mykey">My key</button>
+      <button class="btn btn-ghost" id="btn-logout">Logout</button>
+    </nav>
+  </header>
+
+  <div id="plain-banner" class="plain-banner" hidden>
+    ⚠ PLAIN DEMO MODE — passwords and messages are NOT encrypted and NOT signed. Anyone on the network can read and change them.
+  </div>
+  <div class="chat-body">
+    <nav class="rail">
+      <button class="rail-item active" id="rail-chat">Chat</button>
+      <button class="rail-item" id="rail-profile">Profile</button>
+      <button class="rail-item" id="rail-keys">Keys</button>
+      <button class="rail-item" id="rail-log">Log</button>
+    </nav>
+
+    <aside class="contacts">
+      <h2>Friends</h2>
+      <form id="add-friend-form" class="add-friend">
+        <input id="add-friend-name" class="search" placeholder="Add friend by username" maxlength="20"
+               spellcheck="false" autocomplete="off" aria-label="Add friend by username">
+        <button type="submit" class="btn btn-gradient add-btn" aria-label="Send friend request">Add</button>
+      </form>
+      <p id="add-friend-status" class="add-status" role="status"></p>
+      <div id="requests" class="requests" hidden>
+        <h3>Friend requests</h3>
+        <ul id="request-list" class="request-list"></ul>
+      </div>
+      <input id="search" class="search" placeholder="Search friends…" spellcheck="false" aria-label="Search friends">
+      <ul id="contact-list" class="contact-list"></ul>
+      <div class="contacts-foot">
+        <img src="/static/shield-soft.svg" alt="" class="soft-shield">
+        <strong>Private by design.</strong>
+        <span>Verify keys with your contact.</span>
+        <button class="btn btn-soft" id="btn-verify">Verify contact key</button>
+      </div>
+    </aside>
+
+    <main class="conversation" id="conversation">
+      <div id="announce-banner" class="announce-banner" role="status" hidden>
+        <strong>Announcement</strong>
+        <span id="announce-text"></span>
+        <button id="announce-close" aria-label="Dismiss announcement">×</button>
+      </div>
+      <div class="conv-head">
+        <div>
+          <h2 id="peer-name">No conversation</h2>
+          <p id="peer-sub" class="peer-sub">Select a contact to start</p>
+        </div>
+        <span class="badge-secure" id="mode-badge">SECURE MODE ON</span>
+      </div>
+
+      <div id="messages" class="messages" aria-live="polite"></div>
+
+      <form id="composer" class="composer">
+        <button type="button" id="file-btn" class="btn btn-soft btn-file" disabled
+                title="Send an encrypted file (max 10 MiB)">File</button>
+        <input type="file" id="file-input" hidden>
+        <input id="msg-input" class="msg-input" placeholder="Type a message…" maxlength="4000" autocomplete="off" aria-label="Message">
+        <button type="submit" id="send-btn" class="btn btn-gradient btn-send" disabled>Send</button>
+      </form>
+    </main>
+
+    <!-- ======================================================== PROFILE (user page) -->
+    <main class="profile" id="profile" hidden>
+      <div class="profile-head">
+        <div class="big-avatar" id="pf-avatar"></div>
+        <div>
+          <h2 id="pf-name"></h2>
+          <p class="peer-sub">Your account, keys, friends and security</p>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <section class="pcard">
+          <h3>Account &amp; session</h3>
+          <dl class="kv">
+            <dt>Account created</dt><dd id="pf-created"></dd>
+            <dt>Previous login</dt><dd id="pf-last"></dd>
+            <dt>This session since</dt><dd id="pf-session"></dd>
+            <dt>Server</dt><dd id="pf-server"></dd>
+            <dt>Channel</dt><dd>Encrypted (RSA-OAEP key exchange, AES-256-GCM)</dd>
+          </dl>
+        </section>
+
+        <section class="pcard">
+          <h3>My keys</h3>
+          <p class="fp-label">Your public key fingerprint</p>
+          <div class="fp-box small-fp" id="pf-myfp"></div>
+          <p class="fp-label">Server key fingerprint (pinned)</p>
+          <div class="fp-box dark small-fp" id="pf-serverfp"></div>
+          <p class="muted small">Your private key stays on this computer, encrypted with your password.</p>
+        </section>
+
+        <section class="pcard wide">
+          <h3>Friends &amp; pinned keys</h3>
+          <table class="ptable">
+            <thead><tr><th>Friend</th><th>Status</th><th>Key fingerprint</th><th>Verification</th><th></th></tr></thead>
+            <tbody id="pf-friends"></tbody>
+          </table>
+        </section>
+
+        <form class="pcard" id="pw-form" novalidate>
+          <h3>Change password</h3>
+          <label for="pw-old">Current password</label>
+          <input id="pw-old" class="field" type="password" autocomplete="current-password" maxlength="72">
+          <label for="pw-new">New password</label>
+          <input id="pw-new" class="field" type="password" autocomplete="new-password" maxlength="72">
+          <label for="pw-confirm">Confirm new password</label>
+          <input id="pw-confirm" class="field" type="password" autocomplete="new-password" maxlength="72">
+          <p class="hint">8+ characters with 3 of lowercase, uppercase, digits, symbols. Your local private
+            key is re-encrypted with the new password.</p>
+          <button class="btn btn-gradient" type="submit" id="pw-btn">Change password</button>
+          <p id="pw-status" class="status" role="alert"></p>
+        </form>
+
+        <section class="pcard">
+          <div class="pcard-head">
+            <h3>My security events</h3>
+            <button class="btn btn-soft small-btn" id="sec-refresh" type="button">Refresh</button>
+          </div>
+          <ul id="pf-events" class="event-list"></ul>
+        </section>
+
+        <section class="pcard wide">
+          <h3>Announcements</h3>
+          <ul id="pf-announcements" class="event-list"></ul>
+        </section>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ============================================================ DIALOGS -->
+<div id="overlay" class="overlay" hidden></div>
+
+<div id="dlg-verify" class="dialog" role="dialog" aria-modal="true" aria-labelledby="verify-title" hidden>
+  <div class="dlg-title"><img src="/static/shield.svg" alt=""><h3 id="verify-title">Verify contact key</h3></div>
+  <p class="fp-label" id="verify-peer-label"></p>
+  <div class="fp-box" id="verify-peer-fp"></div>
+  <p class="fp-label">Your fingerprint (they compare this one)</p>
+  <div class="fp-box dark" id="verify-my-fp"></div>
+  <p class="dlg-note" id="verify-note"></p>
+  <div class="dlg-actions">
+    <button class="btn btn-danger" id="verify-trust" hidden>Trust new key</button>
+    <button class="btn btn-gradient" id="verify-match" hidden>Fingerprints match</button>
+    <button class="btn btn-soft" data-close>Done</button>
+  </div>
+</div>
+
+<div id="dlg-mykey" class="dialog" role="dialog" aria-modal="true" aria-labelledby="mykey-title" hidden>
+  <div class="dlg-title"><img src="/static/shield.svg" alt=""><h3 id="mykey-title">Your keys</h3></div>
+  <p class="fp-label" id="mykey-label">Your public key fingerprint</p>
+  <div class="fp-box" id="mykey-fp"></div>
+  <p class="fp-label">Server key fingerprint (pinned)</p>
+  <div class="fp-box dark" id="server-fp"></div>
+  <p class="dlg-note muted">Your private key never leaves this computer. It is stored encrypted
+    with your password in <code>client_data/keys/</code>.</p>
+  <div class="dlg-actions"><button class="btn btn-gradient" data-close>Done</button></div>
+</div>
+
+<div id="dlg-log" class="dialog log-dialog" role="dialog" aria-modal="true" aria-labelledby="log-title" hidden>
+  <div class="log-head">
+    <h3 id="log-title">SECURITY LOG / LIVE EVENTS</h3>
+    <button class="log-close" data-close aria-label="Close">×</button>
+  </div>
+  <ol id="log-list" class="log-list"></ol>
+</div>
+
+<div id="dlg-serverkey" class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="sk-title" hidden>
+  <div class="dlg-title"><img src="/static/shield-red.svg" alt=""><h3 id="sk-title" class="danger-text">Server key changed</h3></div>
+  <p class="dlg-note">The server at <b id="sk-address"></b> presented a <b>different</b> key than before.
+    Someone may be impersonating the server (man-in-the-middle), or it was legitimately reinstalled.</p>
+  <p class="fp-label">Pinned before</p>
+  <div class="fp-box dark" id="sk-old"></div>
+  <p class="fp-label">Presented now</p>
+  <div class="fp-box danger" id="sk-new"></div>
+  <p class="dlg-note">Only continue if the server owner confirmed the new fingerprint.</p>
+  <div class="dlg-actions">
+    <button class="btn btn-danger" id="sk-trust">Trust new key</button>
+    <button class="btn btn-soft" data-close>Cancel</button>
+  </div>
+</div>
+
+</body>
+</html>
